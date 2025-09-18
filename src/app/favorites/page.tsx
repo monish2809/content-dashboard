@@ -31,19 +31,38 @@ const Favorites = () => {
     filteredItems.forEach((item) => dispatch(removeFavorite(item.id)));
   };
 
+  const theme = useSelector((state: RootState) => state.user.theme);
+  const themeBodyClasses: Record<string, string> = {
+    light: "bg-gradient-to-br from-gray-50 via-white to-gray-200 text-gray-900",
+    dark: "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-gray-100",
+    indigo:
+      "bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-700 text-indigo-100",
+  };
+  const bodyClass =
+    themeBodyClasses[theme as keyof typeof themeBodyClasses] ||
+    themeBodyClasses.light;
+
   return (
-    <div className="flex min-h-screen bg-gray-900">
+    <div
+      className={`flex min-h-screen ${bodyClass} transition-colors duration-500`}
+    >
       <Sidebar />
-      <div className="flex-1 ml-64 bg-gray-900">
+      <div
+        className={`flex-1 ml-64 ${bodyClass} transition-colors duration-500`}
+      >
         <Navbar />
-        <div className="p-6">
-          <h2 className="text-2xl font-bold mb-4 text-indigo-300">Favorites</h2>
-          <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <label className="text-indigo-200 font-semibold">Category:</label>
+        <div className="p-8">
+          <h2 className="text-2xl font-bold mb-6 text-indigo-400 dark:text-indigo-300 indigo:text-indigo-200">
+            Favorites
+          </h2>
+          <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center gap-6">
+            <label className="text-indigo-400 dark:text-indigo-200 indigo:text-indigo-100 font-semibold">
+              Category:
+            </label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="p-2 rounded-md bg-gray-800 border border-indigo-700 text-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 indigo:bg-indigo-800 border border-indigo-400 dark:border-indigo-700 indigo:border-indigo-700 text-indigo-900 dark:text-indigo-200 indigo:text-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <option value="all">All</option>
               {categories.map((cat) => (
@@ -53,11 +72,12 @@ const Favorites = () => {
               ))}
             </select>
           </div>
-          <div className="flex justify-end mb-4">
+          <div className="flex justify-end mb-6">
             <button
               onClick={handleRemoveAll}
-              className="px-4 py-2 rounded-md bg-gradient-to-r from-red-600 to-red-800 text-red-100 font-semibold shadow hover:from-red-700 hover:to-red-900 focus:outline-none focus:ring-2 focus:ring-red-400 transition flex items-center justify-center gap-2 text-base sm:text-lg"
+              className="px-6 py-3 rounded-lg bg-gradient-to-r from-red-500 to-red-700 text-red-50 font-semibold shadow hover:from-red-600 hover:to-red-900 focus:outline-none focus:ring-2 focus:ring-red-400 transition flex items-center justify-center gap-2 text-base sm:text-lg"
               disabled={filteredItems.length === 0}
+              style={{ transition: "background 0.5s, color 0.5s" }}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -76,17 +96,22 @@ const Favorites = () => {
               <span className="truncate">Remove All</span>
             </button>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredItems.length === 0 && (
-              <p className="text-indigo-200">No favorites added yet.</p>
+              <p className="text-indigo-400 dark:text-indigo-200 indigo:text-indigo-100">
+                No favorites added yet.
+              </p>
             )}
             {filteredItems.map((item) => (
               <motion.div
                 key={item.id}
-                className="bg-gray-800 p-4 rounded-lg shadow-md border border-indigo-900"
+                className="bg-white dark:bg-gray-800 indigo:bg-indigo-800 rounded-xl shadow-lg p-6 flex flex-col items-start transition hover:scale-105 border border-indigo-300 dark:border-gray-700 indigo:border-indigo-700"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
+                style={{
+                  transition: "background 0.5s, color 0.5s, border 0.5s",
+                }}
               >
                 <img
                   src={item.image || "/placeholder.jpg"}
@@ -95,13 +120,16 @@ const Favorites = () => {
                   style={{ objectFit: "cover" }}
                   loading="lazy"
                 />
-                <h3 className="text-lg font-semibold text-indigo-200">
+                <h3 className="text-lg font-semibold text-indigo-900 dark:text-indigo-200 indigo:text-indigo-100">
                   {item.title}
                 </h3>
-                <p className="text-indigo-200">{item.description}</p>
+                <p className="text-indigo-700 dark:text-indigo-200 indigo:text-indigo-100">
+                  {item.description}
+                </p>
                 <button
                   onClick={() => dispatch(removeFavorite(item.id))}
-                  className="mt-2 w-full sm:w-auto px-4 py-2 rounded-md bg-gradient-to-r from-indigo-600 to-indigo-800 text-indigo-100 font-semibold shadow hover:from-indigo-700 hover:to-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition flex items-center justify-center gap-2 text-base sm:text-lg"
+                  className="mt-4 w-full sm:w-auto px-6 py-3 rounded-lg bg-gradient-to-r from-indigo-500 to-indigo-700 text-indigo-50 font-semibold shadow hover:from-indigo-600 hover:to-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition flex items-center justify-center gap-2 text-base sm:text-lg"
+                  style={{ transition: "background 0.5s, color 0.5s" }}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

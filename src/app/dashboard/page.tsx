@@ -108,16 +108,33 @@ const Dashboard = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [loading, handleScroll]);
 
+  const theme = useSelector((state: RootState) => state.user.theme);
+  const themeBodyClasses: Record<string, string> = {
+    light: "bg-gradient-to-br from-gray-50 via-white to-gray-200 text-gray-900",
+    dark: "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-gray-100",
+    indigo:
+      "bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-700 text-indigo-100",
+  };
+  const bodyClass =
+    themeBodyClasses[theme as keyof typeof themeBodyClasses] ||
+    themeBodyClasses.light;
+
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="flex min-h-screen bg-gray-900">
+      <div
+        className={`flex min-h-screen ${bodyClass} transition-colors duration-500`}
+      >
         <Sidebar />
-        <div className="flex-1 ml-64 flex flex-col bg-gray-900">
+        <div
+          className={`flex-1 ml-64 flex flex-col ${bodyClass} transition-colors duration-500`}
+        >
           <Navbar />
-          <main className="flex flex-col items-center justify-start p-8 bg-gray-900">
-            <div className="w-full max-w-7xl flex flex-col sm:flex-row items-center justify-between mb-4">
+          <main
+            className={`flex flex-col items-center justify-start p-8 ${bodyClass} transition-colors duration-500`}
+          >
+            <div className="w-full max-w-7xl flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
               <SearchBar onSearch={setSearchQuery} />
-              <div className="flex items-center gap-2 mt-4 sm:mt-0">
+              <div className="flex items-center gap-4 mt-4 sm:mt-0">
                 <label className="text-indigo-200 font-semibold">
                   Category:
                 </label>
@@ -144,7 +161,10 @@ const Dashboard = () => {
                 {content.map((item, index) => (
                   <div
                     key={item.id}
-                    className="bg-gray-800 rounded-lg shadow-md p-4 flex flex-col items-start transition hover:scale-105 border border-indigo-900"
+                    className="bg-white dark:bg-gray-800 indigo:bg-indigo-800 rounded-xl shadow-lg p-6 flex flex-col items-start transition hover:scale-105 border border-indigo-300 dark:border-gray-700 indigo:border-indigo-700"
+                    style={{
+                      transition: "background 0.5s, color 0.5s, border 0.5s",
+                    }}
                   >
                     <Card item={item} index={index} moveCard={moveCard} />
                     <button
@@ -159,7 +179,8 @@ const Dashboard = () => {
                           mappedType = "movie";
                         dispatch(addFavorite({ ...item, type: mappedType }));
                       }}
-                      className="mt-2 w-full sm:w-auto px-4 py-2 rounded-md bg-gradient-to-r from-indigo-600 to-indigo-800 text-indigo-100 font-semibold shadow hover:from-indigo-700 hover:to-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition flex items-center justify-center gap-2 text-base sm:text-lg"
+                      className="mt-4 w-full sm:w-auto px-6 py-3 rounded-lg bg-gradient-to-r from-indigo-500 to-indigo-700 text-indigo-50 font-semibold shadow hover:from-indigo-600 hover:to-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition flex items-center justify-center gap-2 text-base sm:text-lg"
+                      style={{ transition: "background 0.5s, color 0.5s" }}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"

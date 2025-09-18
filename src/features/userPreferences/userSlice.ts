@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 interface UserState {
   preferences: { category: string };
-  darkMode: boolean;
+  theme: string;
 }
 
 const getInitialPreferences = () => {
@@ -13,17 +13,17 @@ const getInitialPreferences = () => {
   return { category: "technology" };
 };
 
-const getInitialDarkMode = () => {
+const getInitialTheme = () => {
   if (typeof window !== "undefined") {
-    const stored = localStorage.getItem("darkMode");
-    if (stored) return JSON.parse(stored);
+    const stored = localStorage.getItem("theme");
+    if (stored) return stored;
   }
-  return false;
+  return "light";
 };
 
 const initialState: UserState = {
   preferences: getInitialPreferences(),
-  darkMode: getInitialDarkMode(),
+  theme: getInitialTheme(),
 };
 
 const userSlice = createSlice({
@@ -34,12 +34,12 @@ const userSlice = createSlice({
       state.preferences = action.payload;
       localStorage.setItem("preferences", JSON.stringify(action.payload));
     },
-    toggleDarkMode(state) {
-      state.darkMode = !state.darkMode;
-      localStorage.setItem("darkMode", JSON.stringify(state.darkMode));
+    setTheme(state, action) {
+      state.theme = action.payload;
+      localStorage.setItem("theme", action.payload);
     },
   },
 });
 
-export const { setPreferences, toggleDarkMode } = userSlice.actions;
+export const { setPreferences, setTheme } = userSlice.actions;
 export default userSlice.reducer;
