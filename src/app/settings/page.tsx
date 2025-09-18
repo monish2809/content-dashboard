@@ -29,7 +29,7 @@ const Settings = () => {
             >
               <option value="technology">Technology</option>
               <option value="sports">Sports</option>
-              <option value="finance">Finance</option>
+              <option value="movies">Movies</option>
             </select>
           </div>
         </div>

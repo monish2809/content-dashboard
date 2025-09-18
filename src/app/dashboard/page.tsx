@@ -1,33 +1,39 @@
-'use client';
-import { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from '@/store/store';
-import { fetchNewsContent, fetchMoviesContent, fetchSocialContent } from '@/features/content/contentSlice';
-import { addFavorite } from '@/features/favorites/favoritesSlice';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import { motion, AnimatePresence } from 'framer-motion';
-import Navbar from '@/components/Navbar';
-import Sidebar from '@/components/Sidebar';
-import SearchBar from '@/components/SearchBar';
-import Card from '@/components/Card';
+"use client";
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "@/store/store";
+import {
+  fetchNewsContent,
+  fetchMoviesContent,
+  fetchSocialContent,
+} from "@/features/content/contentSlice";
+import { addFavorite } from "@/features/favorites/favoritesSlice";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import { motion, AnimatePresence } from "framer-motion";
+import Navbar from "@/components/Navbar";
+import Sidebar from "@/components/Sidebar";
+import SearchBar from "@/components/SearchBar";
+import Card from "@/components/Card";
 
 interface ContentItem {
   id: string;
   title: string;
   description: string;
   image?: string;
-  type: 'news' | 'movie' | 'social';
+  type: "news" | "movie" | "social";
   url?: string;
 }
 
 const Dashboard = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { news, movies, social, loading, error } = useSelector((state: RootState) => state.content);
+  const { news, movies, social, loading, error } = useSelector(
+    (state: RootState) => state.content
+  );
   const { preferences } = useSelector((state: RootState) => state.user);
   const [content, setContent] = useState<ContentItem[]>([]);
   const [page, setPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     dispatch(fetchNewsContent({ category: preferences.category, page }));
@@ -37,33 +43,34 @@ const Dashboard = () => {
 
   useEffect(() => {
     const filteredContent = [
-      ...news.map((item) => ({
-        id: `news-${item.url}`,
+      ...news.map((item, index) => ({
+        id: `news-${item.url}-${index}`,
         title: item.title,
-        description: item.description || '',
+        description: item.description || "",
         image: item.urlToImage,
-        type: 'news' as const,
+        type: "news" as const,
         url: item.url,
       })),
-      ...movies.map((item) => ({
-        id: `movie-${item.id}`,
+      ...movies.map((item, index) => ({
+        id: `movie-${item.id}-${index}`,
         title: item.title,
         description: item.overview,
         image: `https://image.tmdb.org/t/p/w500${item.poster_path}`,
-        type: 'movie' as const,
+        type: "movie" as const,
         url: `https://www.themoviedb.org/movie/${item.id}`,
       })),
-      ...social.map((item) => ({
-        id: `social-${item.id}`,
+      ...social.map((item, index) => ({
+        id: `social-${item.id}-${index}`,
         title: item.text,
         description: item.text,
         image: item.image,
-        type: 'social' as const,
+        type: "social" as const,
         url: item.url,
       })),
-    ].filter((item) =>
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchQuery.toLowerCase())
+    ].filter(
+      (item) =>
+        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setContent(filteredContent);
   }, [news, movies, social, searchQuery]);
@@ -76,14 +83,18 @@ const Dashboard = () => {
   };
 
   const handleScroll = () => {
-    if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 100 && !loading) {
+    if (
+      window.innerHeight + document.documentElement.scrollTop >=
+        document.documentElement.offsetHeight - 100 &&
+      !loading
+    ) {
       setPage((prev) => prev + 1);
     }
   };
 
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [loading]);
 
   return (
@@ -115,7 +126,9 @@ const Dashboard = () => {
               </AnimatePresence>
             </motion.div>
             {loading && <div className="text-center mt-4">Loading...</div>}
-            {error && <div className="text-center mt-4 text-red-500">{error}</div>}
+            {error && (
+              <div className="text-center mt-4 text-red-500">{error}</div>
+            )}
           </div>
         </div>
       </div>
