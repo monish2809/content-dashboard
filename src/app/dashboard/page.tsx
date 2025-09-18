@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "@/store/store";
@@ -31,9 +32,27 @@ const Dashboard = () => {
     (state: RootState) => state.content
   );
   const { preferences } = useSelector((state: RootState) => state.user);
+  const categories = ["technology", "sports", "movies"];
+  const [selectedCategory, setSelectedCategory] = useState(
+    preferences.category
+  );
+  useEffect(() => {
+    if (selectedCategory !== preferences.category) {
+      dispatch({
+        type: "user/setPreferences",
+        payload: { category: selectedCategory },
+      });
+    }
+  }, [selectedCategory, dispatch, preferences.category]);
   const [content, setContent] = useState<ContentItem[]>([]);
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const moveCard = (from: number, to: number) => {
+    const newContent = [...content];
+    const [movedItem] = newContent.splice(from, 1);
+    newContent.splice(to, 0, movedItem);
+    setContent(newContent);
+  };
 
   useEffect(() => {
     dispatch(fetchNewsContent({ category: preferences.category, page }));
@@ -73,16 +92,8 @@ const Dashboard = () => {
         item.description.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setContent(filteredContent);
-  }, [news, movies, social, searchQuery]);
-
-  const moveCard = (from: number, to: number) => {
-    const newContent = [...content];
-    const [movedItem] = newContent.splice(from, 1);
-    newContent.splice(to, 0, movedItem);
-    setContent(newContent);
-  };
-
-  const handleScroll = () => {
+  }, [news, movies, social, searchQuery, preferences.category]);
+  const handleScroll = React.useCallback(() => {
     if (
       window.innerHeight + document.documentElement.scrollTop >=
         document.documentElement.offsetHeight - 100 &&
@@ -90,46 +101,91 @@ const Dashboard = () => {
     ) {
       setPage((prev) => prev + 1);
     }
-  };
+  }, [loading]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [loading]);
+  }, [loading, handleScroll]);
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
+      <div className="flex min-h-screen bg-gray-900">
         <Sidebar />
-        <div className="flex-1 ml-64">
+        <div className="flex-1 ml-64 flex flex-col bg-gray-900">
           <Navbar />
-          <div className="p-6">
-            <SearchBar onSearch={setSearchQuery} />
+          <main className="flex flex-col items-center justify-start p-8 bg-gray-900">
+            <div className="w-full max-w-7xl flex flex-col sm:flex-row items-center justify-between mb-4">
+              <SearchBar onSearch={setSearchQuery} />
+              <div className="flex items-center gap-2 mt-4 sm:mt-0">
+                <label className="text-indigo-200 font-semibold">
+                  Category:
+                </label>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="p-2 rounded-md bg-gray-800 border border-indigo-700 text-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
             <motion.div
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-7xl mt-8"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
             >
               <AnimatePresence>
                 {content.map((item, index) => (
-                  <div key={item.id}>
+                  <div
+                    key={item.id}
+                    className="bg-gray-800 rounded-lg shadow-md p-4 flex flex-col items-start transition hover:scale-105 border border-indigo-900"
+                  >
                     <Card item={item} index={index} moveCard={moveCard} />
                     <button
-                      onClick={() => dispatch(addFavorite(item))}
-                      className="mt-2 text-blue-500 hover:underline"
+                      onClick={() => {
+                        // Map selectedCategory to correct type
+                        let mappedType: "news" | "movie" | "social" = item.type;
+                        if (selectedCategory === "technology")
+                          mappedType = "news";
+                        else if (selectedCategory === "sports")
+                          mappedType = "social";
+                        else if (selectedCategory === "movies")
+                          mappedType = "movie";
+                        dispatch(addFavorite({ ...item, type: mappedType }));
+                      }}
+                      className="mt-2 w-full sm:w-auto px-4 py-2 rounded-md bg-gradient-to-r from-indigo-600 to-indigo-800 text-indigo-100 font-semibold shadow hover:from-indigo-700 hover:to-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition flex items-center justify-center gap-2 text-base sm:text-lg"
                     >
-                      Add to Favorites
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 flex-shrink-0"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 15l7-7 7 7"
+                        />
+                      </svg>
+                      <span className="truncate">Add to Favorites</span>
                     </button>
                   </div>
                 ))}
               </AnimatePresence>
             </motion.div>
-            {loading && <div className="text-center mt-4">Loading...</div>}
+            {loading && <div className="text-center mt-8">Loading...</div>}
             {error && (
-              <div className="text-center mt-4 text-red-500">{error}</div>
+              <div className="text-center mt-8 text-red-500">{error}</div>
             )}
-          </div>
+          </main>
         </div>
       </div>
     </DndProvider>

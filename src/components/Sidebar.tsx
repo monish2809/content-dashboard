@@ -25,14 +25,6 @@ const Sidebar = () => {
               Favorites
             </Link>
           </li>
-          <li>
-            <Link
-              href="/settings"
-              className={`block p-2 rounded-md ${pathname === '/settings' ? 'bg-blue-500 text-white' : 'hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-white'}`}
-            >
-              Settings
-            </Link>
-          </li>
         </ul>
       </nav>
     </aside>

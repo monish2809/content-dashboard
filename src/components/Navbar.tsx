@@ -1,21 +1,16 @@
-'use client';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState, AppDispatch } from '@/store/store';
-import { toggleDarkMode } from '@/features/userPreferences/userSlice';
+"use client";
+import { FaUserCircle } from "react-icons/fa";
 
 const Navbar = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { darkMode } = useSelector((state: RootState) => state.user);
-
   return (
-    <nav className="bg-white dark:bg-gray-900 p-4 shadow-md flex justify-between items-center">
-      <h1 className="text-2xl font-bold dark:text-white">Content Dashboard</h1>
-      <button
-        onClick={() => dispatch(toggleDarkMode())}
-        className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-      >
-        {darkMode ? 'Light Mode' : 'Dark Mode'}
-      </button>
+    <nav className="bg-white p-4 shadow-md flex justify-between items-center">
+      <h1 className="text-2xl font-bold text-gray-800">Content Dashboard</h1>
+      <div className="flex items-center gap-4">
+        {/* Theme control placeholder (removed dark mode) */}
+        <span className="text-gray-500 text-sm">Theme: Light</span>
+        {/* Profile icon */}
+        <FaUserCircle className="text-3xl text-gray-400" />
+      </div>
     </nav>
   );
 };
